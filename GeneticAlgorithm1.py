@@ -2,8 +2,9 @@ import random
 import sys
 
 #Initialize library of encoded values:
-numbers = dict([('0000',0), ('0001',1),('0010',3),('0011',4),('0100',5),('0101',6),('0110',7),('0111',8),('1000',9)]);
+numbers = dict([('0000',0), ('0001',1),('0010',2),('0011',3),('0100',4),('0101',5),('0110',6),('0111',7),('1000',8),('1001' ,9)]);
 
+goal = 0
 crossRate = 0.7
 mutationRate = 0.01
 
@@ -41,9 +42,9 @@ def decode (s):
         out = out[:-1]
     return out[1:]
 
-def fitness (g):
+def fitness (g,target):
     try:
-        return 1/(abs(goal-eval(decode(g))))
+        return 1/(abs(target-eval(decode(g))))
     except ZeroDivisionError:
         try:
             eval(decode(g))
@@ -52,14 +53,14 @@ def fitness (g):
         except ZeroDivisionError:
             return 0
 
-def makeRW(pop):
+def makeRW(pop,target):
     total = 0
     wheel = [0]
     for x in pop:
-        total += fitness(x)
+        total += fitness(x,target)
     deg = 360/total
     for x in pop:
-        wheel += [wheel[-1] + deg*fitness(x)]
+        wheel += [wheel[-1] + deg*fitness(x,target)]
     return wheel
 
 def RWselection(wheel):
@@ -93,23 +94,24 @@ def pick2 (pop, wheel):
                 x = 0
     return [a,b]
 
-def genNewPop(oldPop):
+def genNewPop(oldPop,target):
     newPop = []
-    wheel = makeRW(oldPop)
+    wheel = makeRW(oldPop,target)
     for i in range(int(len(oldPop)/2)):
         newPop += pick2(oldPop,wheel)
     return newPop
 
-def solve(size, length, it):
+
+def solve(size, length, it,target):
     pop = genPop(size,length)
     for i in range(it):
-        pop = genNewPop(pop)
+        pop = genNewPop(pop,target)
     print("Solution not found after " + str(it) + " iterations")
     return
 
 
-print("Enter a number to compute a formula for. (Numbers over 100 may take a while)")
-goal = int(input())
+print("Enter a number to compute a formula for. ")
+target = int(input())
 print("Enter a population size")
 size = int(input())
 print("Enter a starting formula length")
@@ -117,4 +119,4 @@ length = int(input())
 print("Enter a number of iterations")
 it = int(input())
 print("Computing now.")
-solve(size, length,it)
+solve(size, length,it,target)
